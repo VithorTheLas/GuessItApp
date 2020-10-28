@@ -17,11 +17,9 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.Bundle
-import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -53,33 +51,27 @@ class GameFragment : Fragment() {
         //get the viewmodel
         viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
 
+        //set the viewmodel for databinding
+        //this allows the bound layout access to all oh the data in the ViewModel
         binding.gameViewModel = viewModel
+
+        //specify the current activity as the lifecycle owner of the binding
+        //this is used so that the binding can observe LiveData updates
+
+        //!!!!!!!!!!!!!!!!!
         binding.lifecycleOwner = this
 
-        //observing time
-        viewModel.currentTime.observe(viewLifecycleOwner, Observer { newTime ->
-            binding.timerText.text = DateUtils.formatElapsedTime(newTime)
-        })
 
-        //observation relationship with gameFinished LiveData
+        //sets up event listening to navigate the player when the game is finished
         viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer { hasFinished ->
             if(hasFinished) {
-                gameFinished()
+                val currentScore = viewModel.score.value ?: 0
+                val action = GameFragmentDirections.actionGameToScore(currentScore)
+                findNavController(this).navigate(action)
                 viewModel.onGameFinishedComplete()
             }
         })
 
         return binding.root
     }
-
-    /**
-     * Called when the game is finished
-     */
-
-    private fun gameFinished() {
-        val currentScore = viewModel.score.value ?: 0
-        val action = GameFragmentDirections.actionGameToScore(currentScore)
-        findNavController(this).navigate(action)
-    }
-
 }

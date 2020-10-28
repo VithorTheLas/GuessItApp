@@ -28,8 +28,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.ScoreFragmentBinding
+import com.example.android.guesstheword.screens.title.TitleFragment
 
-/**
+/*
  * Fragment where the final score is shown, after the game is over
  */
 class ScoreFragment : Fragment() {
@@ -59,20 +60,21 @@ class ScoreFragment : Fragment() {
                 .get(ScoreViewModel::class.java)
 
         binding.scoreViewModel = viewModel
+
+        //specify the current activity as the lifecycle owner of the binding
+        //this is used so that the binding can observe LiveData updates
+
+        //!!!!!!!!!!!!!!!!!
         binding.lifecycleOwner = this
 
         //navigates back to title when button is pressed
         viewModel.eventPlayAgain.observe(viewLifecycleOwner, Observer { playAgain ->
             if(playAgain) {
-                onPlayAgain()
+                findNavController().navigate(ScoreFragmentDirections.actionRestart())
                 viewModel.onPlayAgainComplete()
             }
         })
 
         return binding.root
-    }
-
-    private fun onPlayAgain() {
-        findNavController().navigate(ScoreFragmentDirections.actionRestart())
     }
 }
